@@ -31,3 +31,31 @@ doing you can change the limits on Linux by editing
 ``/etc/security/limits.conf``.  Instructions are here under the heading "User
 Level FD Limits":
 http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+
+
+Can I launch nested jobs?
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's say you call some function over a range of different values. In this
+function, you have a for-loop that you'd like to parallelize. Is this possible?
+
+Yes, it's possible. One example is given below using global variables. We could
+also pass in the Client or re-initialize the Client.
+
+Here's an example using global variables:
+
+.. code-block:: python
+
+    from distributed import Client
+    import numpy as np
+    
+    def g(x):
+      return 2*x
+    def f(x):
+        # return [g(x) for _ in range(5)  # old implementation
+        return [client.submit(g) for _ in range(5)]
+        
+    client = Client()
+    y = [client.submit(f, x) for x in [1, 2, 3, 4]]
+    
+This is common when finding averages given different inputs.
